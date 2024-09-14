@@ -54,8 +54,7 @@ y_sol = sol_euler[1,:]
 #                        GRÁFICA                         #
 ##########################################################
 import matplotlib.pyplot as plt
-plt.plot(x_sol, y_sol, 'b', lw = 1.0) #, label='Euler')
-plt.legend(loc='best')
+plt.plot(x_sol, y_sol, 'b', lw = 1.0)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.title(r'Órbita de Kepler con esquema Euler explícito ($\Delta$t={}s)'.format(dt))
