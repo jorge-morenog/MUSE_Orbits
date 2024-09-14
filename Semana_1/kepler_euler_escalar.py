@@ -41,7 +41,7 @@ def Euler(U0,N,dt):
         i=+1
     return U
 
-# Incremento temporal
+# Paso temporal
 dt = (tf-t0)/N
 # Solución en el instante inicial
 U0 = [x0,y0,vx0,vy0]
