@@ -11,7 +11,7 @@ vy0 = 1
 # Instantes inicial y final
 t0 = 0
 tf = 20
-# Número de inervalos en la malla temporal
+# Número de intervalos en la malla temporal
 N = 500
 
 ##########################################################
@@ -45,7 +45,7 @@ def Euler(U0,N,dt):
 dt = (tf-t0)/N
 # Solución en el instante inicial
 U0 = [x0,y0,vx0,vy0]
-# Solución numérica con el método de Euler explícito
+# Solución numérica con el esquema Euler explícito
 sol_euler = Euler(U0,N,dt)
 x_sol = sol_euler[0,:]
 y_sol = sol_euler[1,:]
