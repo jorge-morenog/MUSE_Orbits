@@ -1,41 +1,46 @@
-from numpy import array, zeros, linspace
-import matplotlib.pyplot as plt 
+from numpy import array, zeros, linspace, concatenate
+from numpy.linalg import norm
+import matplotlib.pyplot as plt
+import inspect
 
-#####################################################################
-#                            FUNCIONES                              #
-#####################################################################
+###########################################################
+#                       PROBLEMAS                         #
+###########################################################
 
-##############################################
-# FUNCIÓN DEL PROBLEMA DE KEPLER
-##############################
+# Problema de Kepler: rvec = -rvec / norm(rvec)^3
+def Kepler(U, t): # U = vector
 
-def Kepler(U,t):  # El U que le llega es un vector
-    
-    F1 = U[2]
-    F2 = U[3]
-    F3 = - U[0]/(U[0]**2 + U[1]**2)**(3/2)
-    F4 = - U[1]/(U[0]**2 + U[1]**2)**(3/2)
-    
-    F = array([F1,F2,F3,F4])
-    
+    r = U[0:2]
+    rdot = U[2:4]
+    F = concatenate( (rdot,-r/norm(r)**3), axis=0 )
+
     return F
 
-##############################################
-# FUNCIONES DE LOS ESQUEMAS NUMÉRICOS
-##############################
+# Problema de Oscilador armónico: xdot2 + x = 0 
+def Oscilador(U, t):
 
-# Euler explícito 
-def Euler(U, t, dt, F):  # U es un vector, t es un instante de tiempo 
+    x = U[0]
+    xdot = U[1]
+    F = array( [xdot, -x] )
 
-    return U + dt * F(U, t)
+    return F
+
+###########################################################
+#                   ESQUEMAS NUMÉRICOS                    #
+###########################################################
+
+# Esquema EULER explícito
+def Euler(F, U, dt, t):
+
+    return U + dt * F(U,t)
 
 # Adams-Bashforth de 2 pasos
-def AB2(U2, U1, t, dt, F):
+def AB2(F, U2, U1, dt, t):
 
     return U2  + (dt/2)*( 3*F(U2,t) - F(U1,t-dt) )
 
 # Runge-Kutta de 2 etapas
-def RK2(U, t, dt, F):
+def RK2(F, U, dt, t):
 
     k1 = F( U         , t      )
     k2 = F( U + k1*dt , t + dt )
@@ -43,93 +48,125 @@ def RK2(U, t, dt, F):
     return U  + (dt/2)*(k1 + k2)
 
 # Runge-Kutta de 4 etapas
-def RK4(U, t, dt, F):
+def RK4(F, U, dt, t):
 
-    k1 = F( U           , t       )
-    k2 = F( U + k1*dt/2 , t + dt/2)
-    k3 = F( U + k2*dt/2 , t + dt/2)
-    k4 = F( U + k3*dt   , t + dt  )
+    k1 = F(U,t)
+    k2 = F( U + k1 * dt/2, t + dt/2)
+    k3 = F( U + k2 * dt/2, t + dt/2)
+    k4 = F( U + k3 * dt  , t + dt  )
+    
+    return U + dt/6 * ( k1 + 2*k2 + 2*k3 + k4)
 
-    return U  + (dt/6)*(k1 + 2*k2 + 2*k3 + k4)
+###########################################################
+#                   PROBLEMA DE CAUCHY                    #
+###########################################################
+#
+# Obtener la solución de un problema dU/dt = F (ccii), dada una CI
+# y un esquema temporal
+#
+# Inputs : 
+#          -> Esquema temporal
+#          -> Funcion F(U,t)
+#          -> Condición inicial
+#          -> Partición temporal
+#
+# Output :  
+#          -> Solución para todo "t" y toda componente
+#
+def Cauchy(Esquema, F, U0, t):
+    
+    N = len(t)-1
+    U = zeros((N+1, len(U0)))
 
-##############################################
-# FUNCIÓN PARA EL PROBLEMA DE CAUCHY
-##############################
-def Cauchy(F, t, U0, Esquema):
-
-    N = len(t) - 1
-    U = array( zeros( [len(t), len(U0)] ) ) # len(t) filas -> índices desde el 0 hasta el len(t)-1 // len(U0) columnas -> índices desde el 0 hasta len(U0)-1 
     U[0,:] = U0
-
     if Esquema == AB2:
         for n in range(0,N-1):   # empieza en 0 y acaba en (N-1)-1 = N-2 -> n toma N-1 valores ( desde 0 hasta N-2 )
             if n==0:
-                U[n+1,:] = Euler(U[n,:], t[n], t[n+1]-t[n], F)
-                U[n+2,:] = Esquema( U[n+1,:], U[n,:], t[n+1], t[n+2]-t[n+1], F )
+                U[n+1,:] = Euler(F, U[n,:], t[n+1]-t[n], t[n])
+                U[n+2,:] = Esquema( F, U[n+1,:], U[n,:], t[n+2]-t[n+1], t[n+1] )
             else: 
-                U[n+2,:] = Esquema( U[n+1,:], U[n,:], t[n+1], t[n+2]-t[n+1], F )
+                U[n+2,:] = Esquema( F, U[n+1,:], U[n,:], t[n+2]-t[n+1], t[n+1] )
+    else:
+        for n in range(0,N):
+            U[n+1,:] = Esquema( F, U[n,:], t[n+1]-t[n], t[n] )
 
-    else: 
-        for n in range(0,N):   # empieza en 0 y acaba en (N)-1 = N-1 -> n toma N valores ( desde 0 hasta N-1 )
-            U[n+1,:] = Esquema( U[n,:], t[n], t[n+1]-t[n], F )
+    return U 
 
-    return U
+###########################################################
+#                          DATOS                          #
+###########################################################
+# Selecciona el problema que quieres resolver (de los implementados en las funciones)
+problema = Kepler
 
-
-#####################################################################
-#              DATOS (solo tocar esta parte del script)             #
-#####################################################################
-# Instante inicial
-t0 = 0
-# Instante final
-tf = 20
-# Número de intervalos
-N = 200
 # Condiciones iniciales
-x0  = 1
-y0  = 0
-vx0 = 0
-vy0 = 1
-# Paso temporal constante o no 
-paso = "si"
+x0_kep  = 1
+y0_kep  = 0
+vx0_kep = 0
+vy0_kep = 1
 
-#####################################################################
-#                             CÓDIGO                                #
-#####################################################################
+# Condiciones iniciales OSCILADOR
+x0_osc  = 1
+vx0_osc = 0
 
-# Vector solución en el instante inicial
-U0 = array( [x0,y0,vx0,vy0] )
+# Instantes inicial y final
+t0 = 0
+tf = 20
 
-# Instantes temporales en los que se evalúa la solución
-if paso == "si":
-    t = array( zeros([N+1]) )  # El vector t tiene N+1 componentes (índices desde 0 hasta N)
-    dt = (tf-t0)/N
-    # Vector de instantes temporales en los que se calcula la solución... linspace = paso temporal constante
-    t = linspace(t0,tf,N+1)  # t0 dentro -> N+1 
+# Número de intervalos (=nº de instantes de tiempo - 1)
+N = 200
 
-# Solución con esquema Euler explícito
-U_euler = Cauchy( Kepler, t, U0, Euler )
-# Solución con esquema Adams-Bashforth de 2 pasos
-U_ab2   = Cauchy( Kepler, t, U0, AB2   )
-# Solución con esquema Runge-Kutta de 2 etapas
-U_rk2   = Cauchy( Kepler, t, U0, RK2   )
-# Solución con esquema Runge-Kutta de 4 etapas
-U_rk4   = Cauchy( Kepler, t, U0, RK4   )
+###########################################################
+#                         CÓDIGO                          #
+###########################################################
 
-#####################################################################
-#                             GRÁFICA                               #
-#####################################################################
+# Creamos vector de condiciones iniciales
+if   problema == Kepler:
+    U0 = array( [x0_kep,y0_kep,vx0_kep,vy0_kep] )
+
+elif problema == Oscilador: 
+    U0 = array( [x0_osc, vx0_osc] )
+
+else:
+    print(f"\n ¡¡¡¡ Especifique U0 metiendo un elif más cerca de la línea de código {inspect.currentframe().f_lineno} !!!! \n")
+
+# Inicializamos y creamos el vector de instantes de tiempo
+t  = zeros(N+1)
+t  = linspace(t0,tf,N+1)
+dt = (tf-t0)/N
+
+# Obtenemos la solución del problema de Cauchy que hemos especificado
+U_euler = Cauchy(Euler, problema, U0, t)
+U_rk2   = Cauchy(RK2  , problema, U0, t)
+U_rk4   = Cauchy(RK4  , problema, U0, t)
+U_ab2   = Cauchy(AB2  , problema, U0, t)
+
+###########################################################
+#                         GRÁFICAS                        #
+###########################################################
+
 plt.figure(figsize=(13, 7))
 plt.axis("equal")
+if problema == Kepler: 
+    plt.plot( U_euler[:, 0], U_euler[:,1] , '-b' , lw = 1.0, label ="Euler explícito" )
+    plt.plot( U_rk2[:, 0]  , U_rk2[:,1]   , '--g', lw = 1.0, label ="Runge-Kutta 2" )
+    plt.plot( U_rk4[:, 0]  , U_rk4[:,1]   , '-r' , lw = 1.0, label ="Runge-Kutta 4" )
+    plt.plot( U_ab2[:, 0]  , U_ab2[:,1]   , '--k', lw = 1.0, label ="Adams-Bashforth 2" )
+    plt.xlabel('x')
+    plt.ylabel('y')
 
-plt.plot( U_euler[:, 0], U_euler[:,1] , '-b' , lw = 1.0, label ="Euler explícito" )
-plt.plot( U_ab2[:, 0]  , U_ab2[:,1]   , '--k', lw = 1.0, label ="Adams-Bashforth 2" )
-plt.plot( U_rk2[:, 0]  , U_rk2[:,1]   , '--g', lw = 1.0, label ="Runge-Kutta 2" )
-plt.plot( U_rk4[:, 0]  , U_rk4[:,1]   , '-r' , lw = 1.0, label ="Runge-Kutta 4" )
+elif problema == Oscilador:  
+    plt.plot( t, U_euler[:,0] , '-b' , lw = 1.0, label ="Euler explícito" )
+    plt.plot( t, U_rk2[:,0]   , '--g', lw = 1.0, label ="Runge-Kutta 2" )
+    plt.plot( t, U_rk4[:,0]   , '-r' , lw = 1.0, label ="Runge-Kutta 4" )
+    plt.plot( t, U_ab2[:,0]   , '--k', lw = 1.0, label ="Adams-Bashforth 2" )
+    plt.xlabel('t')
+    plt.ylabel('x')
+
+else:
+    print(f"\n ¡¡¡¡ Especifique gráfica metiendo un elif más cerca de la línea de código {inspect.currentframe().f_lineno} !!!! \n")
+
 
 plt.legend()
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title(r'Órbita con distintos esquemas ($\Delta$t={})'.format(round(dt,2)))
+plt.title( r'{} resuelto con $\Delta$t={}'.format( problema.__name__, round(dt, 2) ) )
 plt.grid()
 plt.show()
