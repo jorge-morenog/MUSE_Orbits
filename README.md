@@ -1,4 +1,4 @@
-# Objective of the repository : Kepler's problem, Richardson's error, N-body problem, Regions of Absolute Stability, etc.  
+# Objectives of the repository : Kepler's problem, Richardson's error, N-body problem, Regions of Absolute Stability, etc.  
 
 This repository contains, at this moment, scripts for: 
 
