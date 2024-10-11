@@ -7,7 +7,7 @@ import inspect
 #                       PROBLEMAS                         #
 ###########################################################
 
-# Problema de Kepler: rvec = -rvec / norm(rvec)^3
+# Problema de Kepler: rvec = -rvec / norm(rvec)^3.
 def Kepler(U, t): # U = vector
 
     r = U[0:2]
@@ -16,7 +16,7 @@ def Kepler(U, t): # U = vector
 
     return F
 
-# Problema de Oscilador armónico: xdot2 + x = 0 
+# Problema de Oscilador armónico: xdot2 + x = 0. 
 def Oscilador(U, t):
 
     x = U[0]
