@@ -1,4 +1,5 @@
 # Importamos los paquetes que queramos
+using LinearAlgebra
 import Pkg 
 Pkg.add("Plots")
 Pkg.add("OffsetArrays")
@@ -19,14 +20,12 @@ using LaTeXStrings
 # FUNCIÓN DEL PROBLEMA DE KEPLER
 ##############################
 function Kepler(U,t)
-    x, y, x_dot, y_dot = U[1], U[2], U[3], U[4]
+    r = U[1:2]
+    rdot = U[3:4]
 
-    F1 = x_dot
-    F2 = y_dot
-    F3 = -x /(x^2+y^2)^(3/2)
-    F4 = -y /(x^2+y^2)^(3/2)
+    F = [rdot,-r/norm(r)^3]
 
-    return [F1, F2, F3, F4]
+    return F
 end
 
 ##############################################
@@ -37,9 +36,9 @@ end
 function Euler(U, t, dt, F)  # U es un vector, t es un instante de tiempo 
     return U + dt * F(U, t)
 end
+
 # Adams-Bashforth de 2 pasos
 function AB2(U2, U1, t, dt, F)
-
     return U2  + (dt/2)*( 3*F(U2,t) - F(U1,t-dt) )
 end
 
