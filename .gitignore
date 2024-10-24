@@ -1,9 +1,3 @@
-docs/Programming methodologies and Richardson extrapolation for numerical error determination.pptx
-docs/Richardson's extrapolation for numeric error calculation.pdf
-Python_projects/Cauchy_Error/Richardson.py
-Python_projects/Cauchy_Error/__pycache__/Richardson.cpython-312.pyc
-Python_projects/ODES/Newton_Raphson.py
-Python_projects/ODES/Temporal_schemes.py
-Python_projects/ODES/__pycache__/Temporal_schemes.cpython-312.pyc
-Python_projects/HITO_3.py
+docs/~$Richardson's extrapolation for numeric error calculation.pptx
+docs/Richardson's extrapolation for numeric error calculation.pptx
 Python_projects/Newton.py
