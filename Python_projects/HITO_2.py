@@ -5,7 +5,7 @@ from ODES.Cauchy_problem import Cauchy
 from Physics.Kepler import Kepler
 
 ###########################################################
-#                          DATOS                          #
+#                          DATA                           #
 ###########################################################
 # Selecciona el problema que quieres resolver (de los implementados en las funciones)
 problema = Kepler
@@ -61,8 +61,8 @@ plt.axis("equal")
 
 plt.plot( U_1[:, 0], U_1[:,1] , '-b' , lw = 1.0, label =r"{}".format(esquema_1.__name__) )
 plt.plot( U_2[:, 0], U_2[:,1] , '-r' , lw = 1.0, label =r"{}".format(esquema_2.__name__) )
-plt.plot( U_3[:, 0], U_3[:,1] , '--m' , lw = 1.0, label =r"{}".format(esquema_3.__name__) )
-plt.plot( U_4[:, 0], U_4[:,1] , '--c' , lw = 0.8, label =r"{}".format(esquema_4.__name__) )
+plt.plot( U_3[:, 0], U_3[:,1] , '--y' , lw = 1.0, label =r"{}".format(esquema_3.__name__) )
+plt.plot( U_4[:, 0], U_4[:,1] , '--c' , lw = 0.4, label =r"{}".format(esquema_4.__name__) )
 plt.xlabel('x')
 plt.ylabel('y')
 plt.legend()

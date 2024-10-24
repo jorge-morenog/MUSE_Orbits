@@ -39,7 +39,7 @@ def Inv_Euler(F, U, dt, t):
     def G(X):
         return X - U - dt*F(X,t)
     
-    return newton(G, U)  # Utiliza como punto inicial el valor de la solución en el instante anterior
+    return newton(G, U, maxiter = 5000)  # Utiliza como punto inicial el valor de la solución en el instante anterior
 
 # Esquema Crank-Nicolson
 def CN(F, U, dt, t):
@@ -47,4 +47,4 @@ def CN(F, U, dt, t):
     def G(X):
         return X - U - dt/2* ( F(U,t) + F(X,t) )
     
-    return newton(G, U)  # Utiliza como punto inicial el valor de la solución en el instante anterior
+    return newton(G, U, maxiter = 5000)  # Utiliza como punto inicial el valor de la solución en el instante anterior

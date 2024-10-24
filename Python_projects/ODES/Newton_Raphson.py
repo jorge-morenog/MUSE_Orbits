@@ -51,17 +51,17 @@ epsilon = 10**(-9)
 
 # Funciones modificables: F(x) y F'(x)
 def funcion(x): 
-    F = x**3 -2*x -5 
+    # F = x**3 -2*x -5 
     # F = sin(x) - x/2 - log(x+1)
     # F = exp(x) - 2*x 
-    # F = cos(x) - x**2
+    F = cos(x) - x**2
     return F
 
 def derivada(x): 
-    dFdx = 3*x**2 - 2
+    # dFdx = 3*x**2 - 2
     # dFdx = cos(x) - 1/2 -1/(x+1)
     # dFdx = exp(x) - 2
-    # dFdx = -sin(x) - 2*x
+    dFdx = -sin(x) - 2*x
     return dFdx
 
 # Función NO modificable: cálculo del nuevo punto
@@ -99,7 +99,7 @@ for i in range(1,max_iter+2):
         else:
             x_eval = punto(x_eval)
 
-x = linspace(-10, 10, 11)  # Más puntos para una gráfica más suave
+x = linspace(0, 1, 100)  # Más puntos para una gráfica más suave
 print("x=", x)
 F_plot = funcion(x)  # Calcula la función en los puntos
 print("F=", F_plot)
