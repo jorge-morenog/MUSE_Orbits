@@ -5,17 +5,27 @@ from Cauchy_Error.Richardson import Cauchy_Error
 from Physics.Kepler import Kepler
 from Physics.Linear_Oscilator import Lin_Osc
 
-def Newton(F,x0,dF_dx, tolerance = 1E-8): # When an equality is given in an argument, means that if none value is given, it takes the value of the equality
+def Newton(F,x0,dF_dx = None, tolerance = 1E-8, maxiter=50): # When an equality is given in an argument, means that if none value is given, it takes the value of the equality
+    def dFx(x): 
+        if dF_dx == None: 
+            delta = 1E-4
+            return ( F(x+delta) - F(x-delta) ) / (2*delta)
+        else: 
+            return dF_dx(x)
         
+    
     xn  = x0 
     error = 1.
-    while error > tolerance:
-            xn1 = xn - F(xn)/dF_dx(xn)
-            error = abs(xn1-xn)
-            print("xn = ", xn, "xn+1-xn = ", xn1-xn)
-            xn  = xn1
-            
-    return
+    iter = 0
+    while error > tolerance and iter<maxiter:
+        xn1 = xn - F(xn)/dFx(xn)
+        error = abs(xn1-xn)
+        # print("xn = ", xn, "xn+1-xn = ", xn1-xn)
+        xn  = xn1
+        iter += 1
+
+    print("iteraciones = ", iter)        
+    return xn1
 
 # Function which Newton will found zeros
 def function(x):
@@ -27,12 +37,15 @@ def derivative(x):
     return exp(x) - 2
 
 
-cero1 = Newton(function, -1, derivative)
-cero2 = Newton(function, 2, derivative)
+cero1 = Newton(function, -2, derivative)
 print("cero1 = ", cero1)
-print("cero2 = ", cero2)
+print("residuo1 = ", function(cero1))
 
-x = linspace(0,1,100)
+cero2 = Newton(function, -2)
+print("cero2 = ", cero2)
+print("residuo2 = ", function(cero2))
+
+x = linspace(-2,2,100)
 grafica = function(x)
 
 plt.figure(figsize=(13, 7))

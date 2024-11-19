@@ -28,10 +28,11 @@
 ###########################################################
 #                       LIBRARIES                         #
 ########################################################### 
-from numpy import array, zeros, linspace
+from numpy import array, zeros, linspace, log10
 import matplotlib.pyplot as plt
 from ODES.Temporal_schemes import Euler, RK2, RK4, AB2, Inv_Euler, CN
 from Cauchy_Error.Richardson import Cauchy_Error
+from Cauchy_Error.Convergence import Conv
 from Physics.Kepler import Kepler
 from Physics.Linear_Oscilator import Lin_Osc
 
@@ -64,10 +65,14 @@ t0 = 0
 tf = 20
 
 # Number of intervals for the coarse  mesh
-N = 2000 # give a larger value for Inverse Euler scheme ( dt < 0.033 )
+N = 800 # give a larger value for Inverse Euler scheme ( dt < 0.033 )
+
+# DATA FOR CONVERGENCE RATIO
+ptsgraf = 7 # Number of points to be plotted. NOTA: Higher than 8 begins the V-form of the convergence ratio plot
+Nf = 15000  # Maximum N-value to be plotted in convergence ratio figure
 
 ###########################################################
-#                         CODE                            #
+#  CODE FOR CAUCHY ERROR WITH RICHARDSON'S EXTRAPOLATION  #
 ###########################################################
 
 # Initialize the temporal instants vectors
@@ -76,24 +81,42 @@ t  = linspace(t0,tf,N+1)
 dt = (t[-1]-t[0])/N
 
 # Compute the error with Richardson's extrapolation
-U1, error1 = Cauchy_Error(problema, esquema1, U0, t)
-U2, error2 = Cauchy_Error(problema, esquema2, U0, t)
-U3, error3 = Cauchy_Error(problema, esquema3, U0, t)
-U4, error4 = Cauchy_Error(problema, esquema4, U0, t)
+error1 = Cauchy_Error(problema, esquema1, U0, t)
+error2 = Cauchy_Error(problema, esquema2, U0, t)
+error3 = Cauchy_Error(problema, esquema3, U0, t)
+error4 = Cauchy_Error(problema, esquema4, U0, t)
 
 ###########################################################
-#                         GRÁFICAS                        #
+#       CODE FOR CONVERGENCE OF TEMPORAL SCHEMES          #
+###########################################################
+
+# Obtain the vector of values to be represented in each axis of the convergence ratio plot
+print("------------ SCHEME 1 ---------------")
+logN1, logE1 = Conv(problema, esquema1, U0, t, ptsgraf, Nf)
+q1 = - round( ( logE1[-1,0]-logE1[0,0] ) / (logN1[-1]-logN1[0]) , 2 )
+print("------------ SCHEME 2 ---------------")
+logN2, logE2 = Conv(problema, esquema2, U0, t, ptsgraf, Nf)
+q2 = - round( ( logE2[-1,0]-logE2[0,0] ) / (logN2[-1]-logN2[0]) , 2 )
+print("------------ SCHEME 3 ---------------")
+logN3, logE3 = Conv(problema, esquema3, U0, t, ptsgraf, Nf)
+q3 = - round( ( logE3[-1,0]-logE3[0,0] ) / (logN3[-1]-logN3[0]) , 2 )
+print("------------ SCHEME 4 ---------------")
+logN4, logE4 = Conv(problema, esquema4, U0, t, ptsgraf, Nf)
+q4 = - round( ( logE4[-1,0]-logE4[0,0] ) / (logN4[-1]-logN4[0]) , 2 )
+
+###########################################################
+#                         GRAPHICS                        #
 ###########################################################
 # Plots the solution with "esquema1" temporal scheme
-plt.figure(figsize=(13, 7))
-plt.axis("equal")
+# plt.figure(figsize=(13, 7))
+# plt.axis("equal")
 
-plt.plot( U1[:,0], U1[:,1] , '-b' , lw = 1.0)
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title( r'{} problem solved with {} scheme (coarse mesh with $\Delta$t={})'.format( problema.__name__, esquema1.__name__, round(dt, 2) ) )
-plt.grid()
-plt.show()
+# plt.plot( U1[:,0], U1[:,1] , '-b' , lw = 1.0)
+# plt.xlabel('x')
+# plt.ylabel('y')
+# plt.title( r'{} problem solved with {} scheme (coarse mesh with $\Delta$t={})'.format( problema.__name__, esquema1.__name__, round(dt, 2) ) )
+# plt.grid()
+# plt.show()
 
 # Plots the error for componets 0 and 1 of the of the solution vector for 
 # the "esquema1" temporal scheme.
@@ -108,7 +131,7 @@ plt.title( r'Error of {} problem solved with {} scheme (coarse mesh with $\Delta
 plt.grid()
 plt.show()
 
-# Compares the component 0 of the solution vector given by different temproal schemes
+# Compares the component 0 of the solution vector given by different temporal schemes
 plt.figure(figsize=(13, 7))
 
 plt.plot( t[:], error1[:,0] , '-b' , lw = 1.0, label =r"{}".format(esquema1.__name__) )
@@ -119,5 +142,22 @@ plt.xlabel('t')
 plt.ylabel('Error')
 plt.legend()
 plt.title( r'Error in x component of {} problem (coarse mesh with $\Delta$t={})'.format( problema.__name__, round(dt, 2) ) )
+plt.grid()
+plt.show()
+
+
+# Plots the convergence for every temporal scheme 
+plt.figure(figsize=(13, 7))
+# plt.axis("equal")
+
+plt.plot( logN1[:], logE1[:,0] , '-b'  , lw = 1.0, label = r"{} (q={})".format(esquema1.__name__, q1) )
+plt.plot( logN2[:], logE2[:,0] , '-r'  , lw = 1.0, label = r"{} (q={})".format(esquema2.__name__, q2) )
+plt.plot( logN3[:], logE3[:,0] , '--m' , lw = 1.0, label = r'{} (q={})'.format(esquema3.__name__, q3) )
+plt.plot( logN4[:], logE4[:,0] , '--c' , lw = 1.0, label = r'{} (q={})'.format(esquema4.__name__, q4) )
+
+plt.xlabel(r'$log_{10}(N)$')
+plt.ylabel(r'$log_{10}(E)$')
+plt.legend(loc='lower left')
+plt.title( r'$\bf{Convergence\ ratio}$ for different temporal schemes' )
 plt.grid()
 plt.show()
