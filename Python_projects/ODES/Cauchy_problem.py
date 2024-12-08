@@ -16,7 +16,7 @@
 #
 from numpy import zeros
 # from numpy.linalg import norm
-from ODES.Temporal_schemes import Euler, AB2
+from ODES.Temporal_schemes import Euler, AB2, LF
 
 ##################################
 def Cauchy(Esquema, F, U0, t):
@@ -25,7 +25,7 @@ def Cauchy(Esquema, F, U0, t):
     U = zeros((N+1, len(U0)))
 
     U[0,:] = U0
-    if Esquema == AB2:
+    if Esquema == AB2 or Esquema == LF:
         for n in range(0,N-1):   # empieza en 0 y acaba en (N-1)-1 = N-2 -> n toma N-1 valores ( desde 0 hasta N-2 )
             if n==0:
                 U[n+1,:] = Euler(F, U[n,:], t[n+1]-t[n], t[n])

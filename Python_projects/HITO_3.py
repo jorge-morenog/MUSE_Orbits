@@ -41,7 +41,7 @@ from Physics.Linear_Oscilator import Lin_Osc
 #                         DATA                            #
 ###########################################################
 # Select the problem you want to solve
-problema = Kepler
+problema = Lin_Osc
 
 # Select the temporal scheme with wHich you want to calculate
 # the numerical solution
@@ -58,7 +58,8 @@ vy0 = 1
 
 # Create the initial conditions vector accroding to the 
 # dimension of the solution vector of your problem
-U0 = array( [x0,y0,vx0,vy0] )
+# U0 = array( [x0,y0,vx0,vy0] )
+U0 = array( [x0, vx0] )
 
 # Initial and final instants
 t0 = 0
@@ -97,12 +98,12 @@ q1 = - round( ( logE1[-1,0]-logE1[0,0] ) / (logN1[-1]-logN1[0]) , 2 )
 print("------------ SCHEME 2 ---------------")
 logN2, logE2 = Conv(problema, esquema2, U0, t, ptsgraf, Nf)
 q2 = - round( ( logE2[-1,0]-logE2[0,0] ) / (logN2[-1]-logN2[0]) , 2 )
-print("------------ SCHEME 3 ---------------")
-logN3, logE3 = Conv(problema, esquema3, U0, t, ptsgraf, Nf)
-q3 = - round( ( logE3[-1,0]-logE3[0,0] ) / (logN3[-1]-logN3[0]) , 2 )
-print("------------ SCHEME 4 ---------------")
-logN4, logE4 = Conv(problema, esquema4, U0, t, ptsgraf, Nf)
-q4 = - round( ( logE4[-1,0]-logE4[0,0] ) / (logN4[-1]-logN4[0]) , 2 )
+# print("------------ SCHEME 3 ---------------")
+# logN3, logE3 = Conv(problema, esquema3, U0, t, ptsgraf, Nf)
+# q3 = - round( ( logE3[-1,0]-logE3[0,0] ) / (logN3[-1]-logN3[0]) , 2 )
+# print("------------ SCHEME 4 ---------------")
+# logN4, logE4 = Conv(problema, esquema4, U0, t, ptsgraf, Nf)
+# q4 = - round( ( logE4[-1,0]-logE4[0,0] ) / (logN4[-1]-logN4[0]) , 2 )
 
 ###########################################################
 #                         GRAPHICS                        #
@@ -122,8 +123,8 @@ q4 = - round( ( logE4[-1,0]-logE4[0,0] ) / (logN4[-1]-logN4[0]) , 2 )
 # the "esquema1" temporal scheme.
 plt.figure(figsize=(13, 7))
 
-plt.plot( t[:], error1[:,0] , '-b' , lw = 1.0, label ="Error en x" )
-plt.plot( t[:], error1[:,1] , '-r' , lw = 1.0, label ="Error en y" )
+plt.plot( t[:], error1[:,0] , '-b' , lw = 1.0, label ="Comp. 1 of state vector" )
+plt.plot( t[:], error1[:,1] , '-r' , lw = 1.0, label ="Comp. 2 of state vector" )
 plt.xlabel('t')
 plt.ylabel('Error')
 plt.legend()
@@ -152,12 +153,12 @@ plt.figure(figsize=(13, 7))
 
 plt.plot( logN1[:], logE1[:,0] , '-b'  , lw = 1.0, label = r"{} (q={})".format(esquema1.__name__, q1) )
 plt.plot( logN2[:], logE2[:,0] , '-r'  , lw = 1.0, label = r"{} (q={})".format(esquema2.__name__, q2) )
-plt.plot( logN3[:], logE3[:,0] , '--m' , lw = 1.0, label = r'{} (q={})'.format(esquema3.__name__, q3) )
-plt.plot( logN4[:], logE4[:,0] , '--c' , lw = 1.0, label = r'{} (q={})'.format(esquema4.__name__, q4) )
+# plt.plot( logN3[:], logE3[:,0] , '--m' , lw = 1.0, label = r'{} (q={})'.format(esquema3.__name__, q3) )
+# plt.plot( logN4[:], logE4[:,0] , '--c' , lw = 1.0, label = r'{} (q={})'.format(esquema4.__name__, q4) )
 
 plt.xlabel(r'$log_{10}(N)$')
-plt.ylabel(r'$log_{10}(E)$')
+plt.ylabel(r'$log_{10}(U_2 - U_1)$')
 plt.legend(loc='lower left')
-plt.title( r'$\bf{Convergence\ ratio}$ for different temporal schemes' )
+plt.title( r'Convergence ratio of different temporal schemes for {} problem'.format( problema.__name__) )
 plt.grid()
 plt.show()
