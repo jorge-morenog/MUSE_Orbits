@@ -19,7 +19,7 @@ from numpy import zeros
 from ODES.Temporal_schemes import Euler, AB2, LF
 
 ##################################
-def Cauchy(Esquema, F, U0, t):
+def Cauchy(Esquema, F, U0, t, *args):
     
     N = len(t)-1
     U = zeros((N+1, len(U0)))
@@ -28,12 +28,12 @@ def Cauchy(Esquema, F, U0, t):
     if Esquema == AB2 or Esquema == LF:
         for n in range(0,N-1):   # empieza en 0 y acaba en (N-1)-1 = N-2 -> n toma N-1 valores ( desde 0 hasta N-2 )
             if n==0:
-                U[n+1,:] = Euler(F, U[n,:], t[n+1]-t[n], t[n])
-                U[n+2,:] = Esquema( F, U[n+1,:], U[n,:], t[n+2]-t[n+1], t[n+1] )
+                U[n+1,:] = Euler(F, U[n,:], t[n+1]-t[n], t[n], *args)
+                U[n+2,:] = Esquema( F, U[n+1,:], U[n,:], t[n+2]-t[n+1], t[n+1], *args )
             else: 
-                U[n+2,:] = Esquema( F, U[n+1,:], U[n,:], t[n+2]-t[n+1], t[n+1] )
+                U[n+2,:] = Esquema( F, U[n+1,:], U[n,:], t[n+2]-t[n+1], t[n+1], *args )
     else:
         for n in range(0,N):
-            U[n+1,:] = Esquema( F, U[n,:], t[n+1]-t[n], t[n] )
+            U[n+1,:] = Esquema( F, U[n,:], t[n+1]-t[n], t[n], *args )
 
     return U 
